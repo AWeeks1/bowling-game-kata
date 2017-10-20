@@ -1,0 +1,22 @@
+plugins {
+	id "org.springframework.boot" version "1.5.8.RELEASE"
+}
+
+repositories {
+	mavenCentral()
+	maven { url "https://repo.spring.io/libs-milestone" }
+}
+
+dependencies {
+	ext.springShellVersion = "2.0.0.M2"
+
+	compile "org.springframework.boot:spring-boot-starter"
+	compile "org.springframework.shell:spring-shell-starter:${springShellVersion}"
+
+	testCompile "org.springframework.boot:spring-boot-starter-test"
+}
+
+jar {
+	baseName = "bowling-game-kata"
+	version = "0.0.1-SNAPSHOT"
+}
