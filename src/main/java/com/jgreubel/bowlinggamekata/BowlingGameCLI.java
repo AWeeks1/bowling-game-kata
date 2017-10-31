@@ -6,25 +6,41 @@ import org.springframework.shell.standard.ShellMethod;
 @ShellComponent
 public class BowlingGameCLI {
 
-    @ShellMethod("Record your entire bowling game score!")
-    public String record(String score) {
-        if(!isValidScore(score)) {
-            return "Please enter a valid bowling game score";
+    private int frame = 1;
+    private int score = 0;
+
+    @ShellMethod("Record your bowling score per frame!")
+    public String record(String frameScore) {
+        try {
+            score += parseFrameScore(frameScore);
+        } catch (InvalidFrameScoreException e) {
+            return "Please enter a valid bowling frame score";
         }
 
-        return String.format("Game Over! Your bowling score is %s! Well done!", score);
+        if (frame < 10) {
+            return String.format("Your score after %d frames is %d! Keep it up!", frame++, score);
+        } else {
+            return String.format("Game Over! Your bowling score is %d! Well done!", score);
+        }
+
     }
 
-    private boolean isValidScore(String score) {
-        int intScore;
+    private int parseFrameScore(String frameScore) throws InvalidFrameScoreException {
+        int intFrameScore;
 
         try {
-            intScore = Integer.parseInt(score);
+            intFrameScore = Integer.parseInt(frameScore);
         } catch (NumberFormatException e) {
-            return false;
+            throw new InvalidFrameScoreException();
         }
 
-        return intScore >= 0 && intScore <= 300;
+        if (intFrameScore < 0 || intFrameScore > 10) {
+            throw new InvalidFrameScoreException();
+        }
+
+        return intFrameScore;
     }
+
+    private class InvalidFrameScoreException extends Exception {}
 
 }
