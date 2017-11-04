@@ -1,46 +1,51 @@
 package com.jgreubel.bowlinggamekata;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
+
+import java.util.Stack;
 
 @ShellComponent
 public class BowlingGameCLI {
 
-    private int frame = 1;
-    private int score = 0;
+    private Stack<Frame> frames = new Stack<>();
+
+    private final Parser parser;
+    private final Displayer displayer;
+
+    @Autowired
+    public BowlingGameCLI(Parser parser, Displayer displayer) {
+        this.parser = parser;
+        this.displayer = displayer;
+    }
 
     @ShellMethod("Record your bowling score per frame!")
-    public String record(String frameScore) {
-        try {
-            score += parseFrameScore(frameScore);
-        } catch (InvalidFrameScoreException e) {
-            return "Please enter a valid bowling frame score";
-        }
-
-        if (frame < 10) {
-            return String.format("Your score after %d frames is %d! Keep it up!", frame++, score);
-        } else {
-            return String.format("Game Over! Your bowling score is %d! Well done!", score);
-        }
-
-    }
-
-    private int parseFrameScore(String frameScore) throws InvalidFrameScoreException {
-        int intFrameScore;
+    public String record(String bowlScore) {
+        Frame currentFrame = getCurrentFrame(frames);
 
         try {
-            intFrameScore = Integer.parseInt(frameScore);
-        } catch (NumberFormatException e) {
-            throw new InvalidFrameScoreException();
+            currentFrame.addBowl(parser.parseBowlScore(bowlScore, currentFrame.getFrameScore()));
+        } catch (InvalidBowlScoreException e) {
+            return "Please enter a valid bowl score!";
         }
 
-        if (intFrameScore < 0 || intFrameScore > 10) {
-            throw new InvalidFrameScoreException();
+        String frameDisplay = displayer.getFrameDisplay(frames);
+
+        if (frames.size() == 10) {
+            frames = new Stack<>();
+            frameDisplay = "Game Over! " + frameDisplay;
         }
 
-        return intFrameScore;
+        return frameDisplay;
     }
 
-    private class InvalidFrameScoreException extends Exception {}
+    private Frame getCurrentFrame(Stack<Frame> frames) {
+        if(frames.empty() || frames.peek().isCompleted()) {
+            frames.push(new Frame());
+        }
+
+        return frames.peek();
+    }
 
 }
