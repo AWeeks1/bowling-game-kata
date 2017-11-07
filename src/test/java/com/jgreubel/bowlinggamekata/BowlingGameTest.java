@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.shell.Shell;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.stream.IntStream;
@@ -16,23 +17,43 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @Import(TestApplicationRunner.class)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class BowlingGameTest {
 
     @Autowired
     private Shell shell;
 
     @Test
-    public void canRecordScorePerFrame() throws Exception {
-        IntStream.rangeClosed(1, 9)
-                .forEach(i -> shell.evaluate(() -> "bowl " + i));
+    public void canRecordScorePerBowl() throws Exception {
+        IntStream.rangeClosed(1, 19)
+                .forEach(i -> shell.evaluate(() -> "bowl 2"));
 
-        assertThat(shell.evaluate(() -> "bowl 10")).isEqualTo("55");
+        assertThat(shell.evaluate(() -> "bowl 2")).isEqualTo("40");
     }
 
     @Test
-    public void doesNotAllowInvalidScores() throws Exception {
+    public void doesNotAllowInvalidScoresPerBowl() throws Exception {
         assertThat(shell.evaluate(() -> "bowl -1")).isEqualTo("Invalid Score");
         assertThat(shell.evaluate(() -> "bowl 11")).isEqualTo("Invalid Score");
+    }
+
+    @Test
+    public void doesNotAllowInvalidScoresPerFrame() throws Exception {
+        shell.evaluate(() -> "bowl 4");
+        assertThat(shell.evaluate(() -> "bowl 7")).isEqualTo("Invalid Score");
+    }
+
+    @Test
+    public void onlyUsesBowlsFromSameFrame_whenCheckingForValidScoresPerFrame() throws Exception {
+        shell.evaluate(() -> "bowl 4");
+        shell.evaluate(() -> "bowl 6");
+        assertThat(shell.evaluate(() -> "bowl 7")).isEqualTo("17");
+    }
+
+    @Test
+    public void itCountsAStrikeAsAnEntireFrame() throws Exception {
+        shell.evaluate(() -> "bowl 10");
+        assertThat(shell.evaluate(() -> "bowl 7")).isEqualTo("17");
     }
 
 }
