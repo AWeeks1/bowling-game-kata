@@ -24,6 +24,11 @@ This small project is an exploration of the best way to test an application.
     * Spare = one extra bowl
     * Score for this frame is total number of pins knocked down
 
+#### Assumptions:
+
+* Users will only enter valid integers
+* Users will only play up to the end of the 10th frame
+
 ### How to run the tests
 
 * Execute `./gradlew test` to run all tests
