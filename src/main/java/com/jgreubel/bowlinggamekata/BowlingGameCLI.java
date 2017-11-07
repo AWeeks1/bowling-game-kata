@@ -6,12 +6,16 @@ import org.springframework.shell.standard.ShellMethod;
 @ShellComponent
 public class BowlingGameCLI {
 
+    private int score = 0;
+
     @ShellMethod("Enter your entire bowling score")
     public String bowl(int score) {
-        if(score < 0 || score > 300) {
+        if (score < 0 || score > 10) {
             return "Invalid Score";
         }
 
-        return String.valueOf(score);
+        this.score += score;
+
+        return String.valueOf(this.score);
     }
 }

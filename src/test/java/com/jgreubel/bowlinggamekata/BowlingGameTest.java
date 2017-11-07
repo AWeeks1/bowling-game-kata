@@ -9,6 +9,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.shell.Shell;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.stream.IntStream;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
@@ -20,14 +22,17 @@ public class BowlingGameTest {
     private Shell shell;
 
     @Test
-    public void canRecordEntireGameScore() throws Exception {
-        assertThat(shell.evaluate(() -> "bowl 300")).isEqualTo("300");
+    public void canRecordScorePerFrame() throws Exception {
+        IntStream.rangeClosed(1, 9)
+                .forEach(i -> shell.evaluate(() -> "bowl " + i));
+
+        assertThat(shell.evaluate(() -> "bowl 10")).isEqualTo("55");
     }
 
     @Test
     public void doesNotAllowInvalidScores() throws Exception {
         assertThat(shell.evaluate(() -> "bowl -1")).isEqualTo("Invalid Score");
-        assertThat(shell.evaluate(() -> "bowl 301")).isEqualTo("Invalid Score");
+        assertThat(shell.evaluate(() -> "bowl 11")).isEqualTo("Invalid Score");
     }
 
 }
