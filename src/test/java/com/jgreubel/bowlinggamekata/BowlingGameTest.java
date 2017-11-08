@@ -46,14 +46,36 @@ public class BowlingGameTest {
     @Test
     public void onlyUsesBowlsFromSameFrame_whenCheckingForValidScoresPerFrame() throws Exception {
         shell.evaluate(() -> "bowl 4");
-        shell.evaluate(() -> "bowl 6");
-        assertThat(shell.evaluate(() -> "bowl 7")).isEqualTo("17");
+        shell.evaluate(() -> "bowl 5");
+        assertThat(shell.evaluate(() -> "bowl 7")).isEqualTo("16");
     }
 
     @Test
     public void itCountsAStrikeAsAnEntireFrame() throws Exception {
         shell.evaluate(() -> "bowl 10");
         assertThat(shell.evaluate(() -> "bowl 7")).isEqualTo("17");
+    }
+
+    @Test
+    public void addsNextTwoBowlAsBonusWhenBowlingAStrike() throws Exception {
+        shell.evaluate(() -> "bowl 10");
+        shell.evaluate(() -> "bowl 5");
+        assertThat(shell.evaluate(() -> "bowl 3")).isEqualTo("26");
+    }
+
+    @Test
+    public void addsNextBowlAsBonusWhenBowlingASpare() throws Exception {
+        shell.evaluate(() -> "bowl 5");
+        shell.evaluate(() -> "bowl 5");
+        assertThat(shell.evaluate(() -> "bowl 7")).isEqualTo("24");
+    }
+
+    @Test
+    public void itCorrectlyScoresAStrikeAndASpare() throws Exception {
+        shell.evaluate(() -> "bowl 10");
+        shell.evaluate(() -> "bowl 5");
+        shell.evaluate(() -> "bowl 5");
+        assertThat(shell.evaluate(() -> "bowl 7")).isEqualTo("44");
     }
 
 }

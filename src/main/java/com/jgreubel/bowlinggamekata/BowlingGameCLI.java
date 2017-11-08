@@ -5,7 +5,6 @@ import org.springframework.shell.standard.ShellMethod;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @ShellComponent
 public class BowlingGameCLI {
@@ -24,16 +23,64 @@ public class BowlingGameCLI {
             bowls.add(null);
         }
 
-        int overallScore = bowls.stream()
-                .filter(Objects::nonNull)
-                .mapToInt(Integer::intValue)
-                .sum();
+        int overallScore = 0;
+        for (int bowlingIndex = 0; bowlingIndex < bowls.size(); bowlingIndex++) {
+            Integer currentBowl = bowls.get(bowlingIndex);
+
+            if (currentBowl == null) continue;
+
+            if (isFirstBowlOfFrame(bowlingIndex) && isStrike(bowlingIndex, bowls) && hasMoreBowls(bowlingIndex, bowls, 2)) {
+                overallScore += currentBowl + getNextBowl(bowlingIndex, bowls, 1) + getNextBowl(bowlingIndex, bowls, 2);
+            }
+            else if (isSecondBowlOfFrame(bowlingIndex) && isSpare(bowlingIndex, bowls) && hasMoreBowls(bowlingIndex, bowls, 1)) {
+                overallScore += currentBowl + getNextBowl(bowlingIndex, bowls, 1);
+            }
+            else {
+                overallScore += currentBowl;
+            }
+        }
 
         return String.valueOf(overallScore);
     }
 
+    private boolean isStrike(int bowlingIndex, List<Integer> bowls) {
+        return bowls.get(bowlingIndex) == 10;
+    }
+
+    private boolean isSpare(int bowlingIndex, List<Integer> bowls) {
+        return bowls.get(bowlingIndex - 1) + bowls.get(bowlingIndex) == 10;
+    }
+
+    private boolean hasMoreBowls(int bowlingIndex, List<Integer> bowls, int num) {
+        while(++bowlingIndex < bowls.size() && num > 0) {
+            if (bowls.get(bowlingIndex) != null) {
+                num--;
+            }
+        }
+
+        return num == 0;
+    }
+
+    private int getNextBowl(int bowlingIndex, List<Integer> bowls, int num) {
+        while(num > 0) {
+            if(bowls.get(++bowlingIndex) != null) {
+                num --;
+            }
+        }
+
+        return bowls.get(bowlingIndex);
+    }
+
+    private boolean isFirstBowlOfFrame(int bowlingIndex) {
+        return bowlingIndex % 2 == 0;
+    }
+
     private boolean isSecondBowlOfFrame(List<Integer> bowls) {
-        return bowls.size() % 2 == 1;
+        return isSecondBowlOfFrame(bowls.size());
+    }
+
+    private boolean isSecondBowlOfFrame(int bowlingIndex) {
+        return bowlingIndex % 2 == 1;
     }
 
     private Integer getFirstBowlOfFrame(List<Integer> bowls) {
