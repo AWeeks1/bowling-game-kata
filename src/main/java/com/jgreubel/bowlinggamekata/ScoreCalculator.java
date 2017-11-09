@@ -12,40 +12,40 @@ class ScoreCalculator {
     int calc(List<Integer> bowls) {
         int overallScore = 0;
 
-        for (int bowlingIndex = 0; bowlingIndex < bowls.size(); bowlingIndex++) {
-            Integer firstBowl = bowls.get(bowlingIndex);
+        for (int bowlIndex = 0, frame = 0; bowlIndex < bowls.size() && frame < 10; bowlIndex++, frame++) {
+            Integer firstBowl = bowls.get(bowlIndex);
             overallScore += firstBowl;
 
-            if (isLastBowl(bowlingIndex, bowls)) {
+            if (isLastBowl(bowlIndex, bowls)) {
                 break;
             }
 
             if (isStrike(firstBowl)) {
-                if (hasMoreBowls(bowlingIndex, bowls, 2)) {
-                    overallScore += bowls.get(bowlingIndex + 1) + bowls.get(bowlingIndex + 2);
+                if (hasMoreBowls(bowlIndex, bowls, 2)) {
+                    overallScore += bowls.get(bowlIndex + 1) + bowls.get(bowlIndex + 2);
                 }
 
                 continue;
             }
 
-            bowlingIndex++;
-            Integer secondBowl = bowls.get(bowlingIndex);
+            bowlIndex++;
+            Integer secondBowl = bowls.get(bowlIndex);
             overallScore += secondBowl;
 
-            if (isSpare(firstBowl, secondBowl) && hasMoreBowls(bowlingIndex, bowls, 1)) {
-                overallScore += bowls.get(bowlingIndex + 1);
+            if (isSpare(firstBowl, secondBowl) && hasMoreBowls(bowlIndex, bowls, 1)) {
+                overallScore += bowls.get(bowlIndex + 1);
             }
         }
 
         return overallScore;
     }
 
-    private boolean isLastBowl(int bowlingIndex, List<Integer> bowls) {
-        return !hasMoreBowls(bowlingIndex, bowls, 1);
+    private boolean isLastBowl(int bowlIndex, List<Integer> bowls) {
+        return !hasMoreBowls(bowlIndex, bowls, 1);
     }
 
-    private boolean hasMoreBowls(int bowlingIndex, List<Integer> bowls, int num) {
-        return bowlingIndex + num < bowls.size();
+    private boolean hasMoreBowls(int bowlIndex, List<Integer> bowls, int num) {
+        return bowlIndex + num < bowls.size();
     }
 
 }
